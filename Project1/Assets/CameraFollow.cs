@@ -33,15 +33,36 @@ public class CameraFollow : MonoBehaviour
 		}
         yaw += speedH * Input.GetAxis("Mouse X");
         pitch -= speedV * Input.GetAxis("Mouse Y");
+
         transform.eulerAngles = new Vector3(pitch, yaw, rot);
-        
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
 
-        Vector3 moveVector = (transform.forward * v) + (transform.right * h);
-        moveVector *= speed * Time.deltaTime;
+        //float h = Input.GetAxis("Horizontal");
+        //float v = Input.GetAxis("Vertical");
+        //Vector3 moveVector = (transform.forward * v) + (transform.right * h);
 
-        transform.localPosition += moveVector;
+		if (Input.GetKey(KeyCode.LeftShift)) {
+			speed = 25 * 10;
+		} else {
+			speed = 25;
+		}
+
+		if (Input.GetKey("w"))
+		{
+			transform.position += this.transform.forward * speed * Time.deltaTime;
+		}
+		if (Input.GetKey("s"))
+		{
+			transform.position -= this.transform.forward * speed * Time.deltaTime;
+		}
+		if (Input.GetKey ("a")) {
+			transform.position -= this.transform.right * speed * Time.deltaTime;
+		}
+		if (Input.GetKey ("d")) {
+			transform.position += this.transform.right * speed * Time.deltaTime;
+		}
+
+       // moveVector *= speed * Time.deltaTime;
+       // transform.localPosition += moveVector;
 
     }
 }
