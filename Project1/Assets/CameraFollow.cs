@@ -25,27 +25,30 @@ public class CameraFollow : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+		// Rolling of camera.
 		if (Input.GetKey("e")) {
-			this.rot -= 1.0f;
+			transform.RotateAroundLocal (-transform.forward, 0.025f);
 		}
 		if (Input.GetKey("q")) {
-			this.rot += 1.0f;
+			transform.RotateAroundLocal (transform.forward, 0.025f);
 		}
-        yaw += speedH * Input.GetAxis("Mouse X");
-        pitch -= speedV * Input.GetAxis("Mouse Y");
 
-        transform.eulerAngles = new Vector3(pitch, yaw, rot);
+				// Mouse movement causes direction of camera to rotate.
+		if (Input.GetAxis ("Mouse X") != 0f) {
+			transform.Rotate (new Vector3 (0f, Input.GetAxis("Mouse X")));
+		}
+		if (Input.GetAxis ("Mouse Y") != 0f) {
+			transform.Rotate (new Vector3 (-Input.GetAxis ("Mouse Y"), 0f));
+		}
 
-        //float h = Input.GetAxis("Horizontal");
-        //float v = Input.GetAxis("Vertical");
-        //Vector3 moveVector = (transform.forward * v) + (transform.right * h);
-
+		// Shift to move faster.
 		if (Input.GetKey(KeyCode.LeftShift)) {
 			speed = 25 * 10;
 		} else {
 			speed = 25;
 		}
 
+		// Move relative to the direction faced.
 		if (Input.GetKey("w"))
 		{
 			transform.position += this.transform.forward * speed * Time.deltaTime;
@@ -60,9 +63,5 @@ public class CameraFollow : MonoBehaviour
 		if (Input.GetKey ("d")) {
 			transform.position += this.transform.right * speed * Time.deltaTime;
 		}
-
-       // moveVector *= speed * Time.deltaTime;
-       // transform.localPosition += moveVector;
-
     }
 }
