@@ -11,6 +11,8 @@ public class TerrainGenerator : MonoBehaviour {
     public int seed = 2;
     public float roughness = 0.5f;
 
+	public Shader shader;
+
     private float[,] dataArray;
 
 	// Use this for initialization
@@ -103,6 +105,8 @@ public class TerrainGenerator : MonoBehaviour {
         Debug.Log("Terrain data generation completed");
 
         GenerateTerrain();
+		MeshRenderer renderer = this.gameObject.AddComponent<MeshRenderer>();
+		renderer.material.shader = shader;
     }
 
     private void GenerateTerrain()

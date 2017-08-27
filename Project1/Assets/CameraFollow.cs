@@ -8,14 +8,6 @@ public class CameraFollow : MonoBehaviour
     public GameObject target;
     // Use this for initialization
 
-    private float speedH = 2.0f;
-    private float speedV = 2.0f;
-
-    private float yaw = 0.0f;
-    private float pitch = 55.0f;
-
-	private float rot = 0.0f;
-
     void Start()
     {
 
