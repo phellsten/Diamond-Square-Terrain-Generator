@@ -28,8 +28,8 @@ Shader "Unlit/PhongShader"
 {
 	Properties
 	{
-		_PointLightColor("Point Light Color", Color) = (0, 0, 0)
-		_PointLightPosition("Point Light Position", Vector) = (0.0, 0.0, 0.0)
+		_PointLightColor("Point Light Color", Color) = (1.0, 1.0, 1.0)
+		_PointLightPosition("Point Light Position", Vector) = (0.0, 50.0, 0.0)
 	}
 	SubShader
 	{

@@ -37,7 +37,7 @@ public class TerrainGenerator : MonoBehaviour {
                 MeshFilter tMesh = t.gameObject.AddComponent<MeshFilter>();
                 tMesh.sharedMesh = this.CreateTerrainMesh(heightMap, seg_x, seg_z);
                 MeshRenderer renderer = t.gameObject.AddComponent<MeshRenderer>();
-                renderer.material.shader = Shader.Find("Unlit/CubeShader");
+                renderer.material.shader = Shader.Find("Unlit/PhongShader");
             }
         }
 
@@ -239,14 +239,19 @@ public class TerrainGenerator : MonoBehaviour {
             return new Color(0.0f, 0.5f, 1.0f, 1.0f);
         }
         // Snowy Mountaintops
-        if (height >= (0.85f * this.maxHeight))
+        else if (height >= (0.85f * this.maxHeight))
         {
             return new Color(0.96f,0.96f,0.96f,1.0f);
+        }
+        // Sand
+        else if (height <= waterLevel + (0.02f * this.maxHeight))
+        {
+            return new Color(0.80f, 0.62f, 0.0f, 1.0f);
         }
         // Grass
         else if (height <= waterLevel + (0.1f * this.maxHeight))
         {
-            return new Color(0.0f,0.74f,0.0f,1.0f);
+            return new Color(0.28f,0.52f,0.23f,1.0f);
         }
         // Dirt/Mountain slope
         else

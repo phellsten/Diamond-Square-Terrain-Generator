@@ -79,8 +79,6 @@ public class CameraFollow : MonoBehaviour
 
         if (this.transform.position.y < h+4)
             this.transform.position = new Vector3(this.transform.position.x, h.Value+4, this.transform.position.z);
-        if (this.transform.position.y > tg.maxHeight * 1.5f - 1)
-            this.transform.position = new Vector3(this.transform.position.x, tg.maxHeight * 1.5f - 1, this.transform.position.z);
 
 
     }
