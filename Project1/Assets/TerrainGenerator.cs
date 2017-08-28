@@ -13,7 +13,7 @@ public class TerrainGenerator : MonoBehaviour {
     public float maxHeight = 20.0f;
     public float waterLevel = 3.0f;
 
-    private float[,] dataArray;
+    private float[,] heightMap = null;
 
 	// Use this for initialization
 	void Start () {
@@ -23,7 +23,7 @@ public class TerrainGenerator : MonoBehaviour {
 
 
         UnityEngine.Random.InitState(seed);
-        float[,] heightMap = GenerateDSHeightMap();
+        heightMap = GenerateDSHeightMap();
 
 
         int seg_num = (size - 1) / segmentSize;
@@ -57,6 +57,13 @@ public class TerrainGenerator : MonoBehaviour {
 		// *****************************************************************************************************************************
 	}
 
+    public float? getHeight(int x, int z)
+    {
+        if (x > (size - 1) || z > (size - 1))
+            return null;
+        return heightMap[x, z] * maxHeight;
+    }
+
     private float[,] GenerateDSHeightMap()
     {
         if (Math.Abs(Math.Log(size - 1, 2) % 1) > (Double.Epsilon * 100))
@@ -66,7 +73,7 @@ public class TerrainGenerator : MonoBehaviour {
         //    throw new Exception("Invalid roughness factor. Must be between 0 & 1");
 
 
-        dataArray = new float[size, size];
+        float[,] dataArray = new float[size, size];
 
         dataArray[0, 0] = 0.0f;
         dataArray[size - 1, 0] = 0.0f;

@@ -6,11 +6,15 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     public GameObject target;
-    // Use this for initialization
 
+    private TerrainGenerator tg = null;
+
+
+    // Use this for initialization
     void Start()
     {
-
+        GameObject terrain = GameObject.Find("Terrain");
+        tg = terrain.GetComponent<TerrainGenerator>();
     }
 
     int speed = 25;
@@ -55,5 +59,29 @@ public class CameraFollow : MonoBehaviour
 		if (Input.GetKey ("d")) {
 			transform.position += this.transform.right * speed * Time.deltaTime;
 		}
+
+        if (tg == null)
+            return;
+
+        if (this.transform.position.x < 1)
+            this.transform.position = new Vector3(2, this.transform.position.y, this.transform.position.z);
+        if (this.transform.position.x > tg.size - 1)
+            this.transform.position = new Vector3(tg.size-2, this.transform.position.y, this.transform.position.z);
+
+        if (this.transform.position.z < 1)
+            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, 2);
+        if (this.transform.position.z > tg.size - 1)
+            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, tg.size-2);
+
+
+        float? h = tg.getHeight(Mathf.RoundToInt(this.transform.position.x), Mathf.RoundToInt(this.transform.position.z));
+        if (h == null) return;
+
+        if (this.transform.position.y < h+3)
+            this.transform.position = new Vector3(this.transform.position.x, h.Value+4, this.transform.position.z);
+        if (this.transform.position.y > tg.maxHeight * 1.5f - 1)
+            this.transform.position = new Vector3(this.transform.position.x, tg.maxHeight * 1.5f - 2, this.transform.position.z);
+
+
     }
 }
