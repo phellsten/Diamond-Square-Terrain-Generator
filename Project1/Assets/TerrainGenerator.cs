@@ -6,19 +6,40 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour {
 
-    public Terrain terrain;
     public int size = 513;
+    public int segmentSize = 64;
     public int seed = 2;
     public float roughness = 0.5f;
-
-	public Shader shader;
+    public float maxHeight = 20.0f;
+    public float waterLevel = 3.0f;
 
     private float[,] dataArray;
 
 	// Use this for initialization
 	void Start () {
+
+        if ((size-1) % segmentSize != 0)
+            throw new Exception("Segment size must be a factor of (Size - 1)");
+
+
         UnityEngine.Random.InitState(seed);
-        GenerateDiamondSquareArray();
+        float[,] heightMap = GenerateDSHeightMap();
+
+
+        int seg_num = (size - 1) / segmentSize;
+        for (int seg_x=0; seg_x < seg_num; seg_x++)
+        {
+            for (int seg_z = 0; seg_z < seg_num; seg_z++)
+            {
+                GameObject t = new GameObject();
+                t.name = "Segment (" + seg_x + ", " + seg_z + ")";
+                t.transform.parent = this.gameObject.transform;
+                MeshFilter tMesh = t.gameObject.AddComponent<MeshFilter>();
+                tMesh.sharedMesh = this.CreateTerrainMesh(heightMap, seg_x, seg_z);
+                MeshRenderer renderer = t.gameObject.AddComponent<MeshRenderer>();
+                renderer.material.shader = Shader.Find("Unlit/CubeShader");
+            }
+        }
 
     }
 
@@ -36,7 +57,7 @@ public class TerrainGenerator : MonoBehaviour {
 		// *****************************************************************************************************************************
 	}
 
-    private void GenerateDiamondSquareArray()
+    private float[,] GenerateDSHeightMap()
     {
         if (Math.Abs(Math.Log(size - 1, 2) % 1) > (Double.Epsilon * 100))
             throw new Exception("Invalid terrain size (2^n+1)");
@@ -93,6 +114,7 @@ public class TerrainGenerator : MonoBehaviour {
                     float rnd = (UnityEngine.Random.value * 2.0f * h) - h;
                     val = Mathf.Clamp01(val + rnd);
 
+
                     dataArray[x, y] = val;
 
                     if (x == 0) dataArray[size - 1, y] = val;
@@ -102,94 +124,127 @@ public class TerrainGenerator : MonoBehaviour {
             }
         }
 
-        Debug.Log("Terrain data generation completed");
-
-        GenerateTerrain();
-		MeshRenderer renderer = this.gameObject.AddComponent<MeshRenderer>();
-		renderer.material.shader = shader;
-    }
-
-    private void GenerateTerrain()
-    {
-        if (terrain == null)
-            return;
-
-        if (terrain.terrainData.heightmapResolution != size)
-            terrain.terrainData.heightmapResolution = size;
-
-        terrain.terrainData.SetHeights(0, 0, dataArray);
-
-        Debug.Log("Terrain heightmap set");
-
-        AddTerrainTextures();
-    }
-
-    private void AddTerrainTextures()
-    {
-        if (terrain == null)
-            return;
-
-        TerrainData terrainData = terrain.terrainData;
-
-        float[,,] splatmapData = new float[terrainData.alphamapWidth, terrainData.alphamapHeight,
-                                        terrainData.alphamapLayers];
-        for (int y=0; y<terrainData.alphamapHeight; y++)
+        for (int x = 0; x < size; x++)
         {
-            for (int x=0; x<terrainData.alphamapWidth; x++)
+            for (int z = 0; z < size; z++)
             {
-                // Normalise x/y coordinates to range 0-1 
-                float y_01 = (float)y / (float)terrainData.alphamapHeight;
-                float x_01 = (float)x / (float)terrainData.alphamapWidth;
-
-                // Sample the height at this location (note GetHeight expects int coordinates corresponding to locations in the heightmap array)
-                float height = terrainData.GetHeight(Mathf.RoundToInt(y_01 * terrainData.heightmapHeight), Mathf.RoundToInt(x_01 * terrainData.heightmapWidth));
-
-                // Calculate the normal of the terrain (note this is in normalised coordinates relative to the overall terrain dimensions)
-                Vector3 normal = terrainData.GetInterpolatedNormal(y_01, x_01);
-
-                // Calculate the steepness of the terrain
-                float steepness = terrainData.GetSteepness(y_01, x_01);
-
-                // Setup an array to record the mix of texture weights at this point
-                float[] splatWeights = new float[terrainData.alphamapLayers];
-
-                // CHANGE THE RULES BELOW TO SET THE WEIGHTS OF EACH TEXTURE ON WHATEVER RULES YOU WANT
-
-                // Texture[0] has constant influence
-                splatWeights[0] = 0.5f;
-
-                // Texture[1] is stronger at lower altitudes
-                splatWeights[1] = Mathf.Clamp01((terrainData.heightmapHeight - height));
-
-                // Texture[2] stronger on flatter terrain
-                // Note "steepness" is unbounded, so we "normalise" it by dividing by the extent of heightmap height and scale factor
-                // Subtract result from 1.0 to give greater weighting to flat surfaces
-                splatWeights[2] = 1.0f - Mathf.Clamp01(steepness * steepness / (terrainData.heightmapHeight / 5.0f));
-
-                // Texture[3] increases with height but only on surfaces facing positive Z axis 
-                splatWeights[3] = height * Mathf.Clamp01(normal.z);
-
-                // Sum of all textures weights must add to 1, so calculate normalization factor from sum of weights
-                float z = splatWeights.Sum();
-
-                // Loop through each terrain texture
-                for (int i = 0; i < terrainData.alphamapLayers; i++)
-                {
-
-                    // Normalize so that sum of all texture weights = 1
-                    splatWeights[i] /= z;
-
-
-                    // Assign this point to the splatmap array
-                    splatmapData[x, y, i] = splatWeights[i];
-                }
+                if (dataArray[x, z] <= (waterLevel / maxHeight)) dataArray[x, z] = (waterLevel / maxHeight);
             }
         }
 
-        // Finally assign the new splatmap to the terrainData:
-        terrainData.SetAlphamaps(0, 0, splatmapData);
+        Debug.Log("Terrain data generation completed");
 
-        Debug.Log("Terrain textures applied");
+        return dataArray;
 
+    }
+
+
+    private Mesh CreateTerrainMesh(float[,] heightMap, int seg_x, int seg_z)
+    {
+        Mesh mesh = new Mesh();
+        mesh.name = "TerrainMesh ("+seg_x+", "+seg_z+")";
+
+        List<Vector3> vertices = new List<Vector3>();
+        List<Vector3> normals = new List<Vector3>();
+        List<Vector2> uvs = new List<Vector2>();
+        List<int> indices = new List<int>();
+        List<Color> colours = new List<Color>();
+
+        int width = this.segmentSize;
+        int length = this.segmentSize;
+
+        Debug.Log("Mesh w:" + width + ", l:" + length);
+
+        for (int x=(seg_x*width); x < (seg_x+1)*width; x++)
+        {
+            for (int z=(seg_z*length); z < (seg_z+1)*length; z++)
+            {
+                float y = heightMap[x, z] * this.maxHeight;
+                vertices.Add(new Vector3(x, y, z));
+                uvs.Add(new Vector2(0.0f, 0.0f));
+                normals.Add(Vector3.up);
+                colours.Add(this.getTerrainColour(y));
+
+                y = heightMap[x, z+1] * this.maxHeight;
+                vertices.Add(new Vector3(x, y, z+1.0f));
+                uvs.Add(new Vector2(0.0f, 1.0f));
+                normals.Add(Vector3.up);
+                colours.Add(this.getTerrainColour(y));
+
+                y = heightMap[x+1, z+1] * this.maxHeight;
+                vertices.Add(new Vector3(x+1.0f, y, z+1.0f));
+                uvs.Add(new Vector2(1.0f, 1.0f));
+                normals.Add(Vector3.up);
+                colours.Add(this.getTerrainColour(y));
+
+                y = heightMap[x+1, z] * this.maxHeight;
+                vertices.Add(new Vector3(x+1.0f, y, z));
+                uvs.Add(new Vector2(1.0f, 0.0f));
+                normals.Add(Vector3.up);
+                colours.Add(this.getTerrainColour(y));
+
+                int baseIndex = vertices.Count - 4;
+
+                indices.Add(baseIndex);
+                indices.Add(baseIndex + 1);
+                indices.Add(baseIndex + 2);
+
+                indices.Add(baseIndex);
+                indices.Add(baseIndex + 2);
+                indices.Add(baseIndex + 3);
+            }
+        }
+
+        mesh.vertices = vertices.ToArray();
+        mesh.triangles = indices.ToArray();
+
+        if (normals.Count == vertices.Count)
+        {
+            Debug.Log("Normals added to mesh.");
+            mesh.normals = normals.ToArray();
+        }
+
+        if (uvs.Count == vertices.Count)
+        {
+            Debug.Log("Texture UVs added to mesh.");
+            mesh.uv = uvs.ToArray();
+        }
+
+        if (colours.Count == vertices.Count)
+        {
+            Debug.Log("Colours added to mesh.");
+            mesh.colors = colours.ToArray();
+        }
+
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
+
+
+        return mesh;
+        
+    }
+
+    Color getTerrainColour(float height)
+    {
+        // Water
+        if (height <= waterLevel)
+        {
+            return new Color(0.0f, 0.5f, 1.0f, 1.0f);
+        }
+        // Snowy Mountaintops
+        if (height >= (0.85f * this.maxHeight))
+        {
+            return new Color(0.96f,0.96f,0.96f,1.0f);
+        }
+        // Grass
+        else if (height <= (0.4f * this.maxHeight))
+        {
+            return new Color(0.0f,0.74f,0.0f,1.0f);
+        }
+        // Dirt/Mountain slope
+        else
+        {
+            return new Color(0.57f,0.44f,0.44f,1.0f);
+        }
     }
 }
