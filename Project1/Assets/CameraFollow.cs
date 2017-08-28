@@ -64,23 +64,23 @@ public class CameraFollow : MonoBehaviour
             return;
 
         if (this.transform.position.x < 1)
-            this.transform.position = new Vector3(2, this.transform.position.y, this.transform.position.z);
+            this.transform.position = new Vector3(1, this.transform.position.y, this.transform.position.z);
         if (this.transform.position.x > tg.size - 1)
-            this.transform.position = new Vector3(tg.size-2, this.transform.position.y, this.transform.position.z);
+            this.transform.position = new Vector3(tg.size-1, this.transform.position.y, this.transform.position.z);
 
         if (this.transform.position.z < 1)
-            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, 2);
+            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, 1);
         if (this.transform.position.z > tg.size - 1)
-            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, tg.size-2);
+            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, tg.size-1);
 
 
         float? h = tg.getHeight(Mathf.RoundToInt(this.transform.position.x), Mathf.RoundToInt(this.transform.position.z));
         if (h == null) return;
 
-        if (this.transform.position.y < h+3)
+        if (this.transform.position.y < h+4)
             this.transform.position = new Vector3(this.transform.position.x, h.Value+4, this.transform.position.z);
         if (this.transform.position.y > tg.maxHeight * 1.5f - 1)
-            this.transform.position = new Vector3(this.transform.position.x, tg.maxHeight * 1.5f - 2, this.transform.position.z);
+            this.transform.position = new Vector3(this.transform.position.x, tg.maxHeight * 1.5f - 1, this.transform.position.z);
 
 
     }

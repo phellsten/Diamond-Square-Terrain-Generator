@@ -244,7 +244,7 @@ public class TerrainGenerator : MonoBehaviour {
             return new Color(0.96f,0.96f,0.96f,1.0f);
         }
         // Grass
-        else if (height <= (0.4f * this.maxHeight))
+        else if (height <= waterLevel + (0.1f * this.maxHeight))
         {
             return new Color(0.0f,0.74f,0.0f,1.0f);
         }
