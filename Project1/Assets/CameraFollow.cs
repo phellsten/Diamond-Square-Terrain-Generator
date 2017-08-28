@@ -31,10 +31,10 @@ public class CameraFollow : MonoBehaviour
 
 				// Mouse movement causes direction of camera to rotate.
 		if (Input.GetAxis ("Mouse X") != 0f) {
-			transform.Rotate (new Vector3 (0f, Input.GetAxis("Mouse X")));
+			transform.Rotate (new Vector3 (0f,Input.GetAxis("Mouse X")));
 		}
 		if (Input.GetAxis ("Mouse Y") != 0f) {
-			transform.Rotate (new Vector3 (-Input.GetAxis ("Mouse Y"), 0f));
+			transform.Rotate (new Vector3 (-Input.GetAxis("Mouse Y"), 0f));
 		}
 
 		// Shift to move faster.

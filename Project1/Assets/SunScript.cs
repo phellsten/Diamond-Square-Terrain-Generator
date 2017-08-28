@@ -12,6 +12,6 @@ public class SunScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		this.transform.RotateAround (new Vector3(512, 512, 512/2), Vector3.forward, 5 * Time.deltaTime);
+		this.transform.RotateAround (new Vector3(512, 512, 512/2), Vector3.forward, 50 * Time.deltaTime);
 	}
 }

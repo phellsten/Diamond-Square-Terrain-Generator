@@ -15,13 +15,16 @@ public class TerrainGenerator : MonoBehaviour {
 
     private float[,] heightMap = null;
 
-	// Use this for initialization
-	void Start () {
+    public Shader shader;
+    public PointLight pointLight;
+
+    // Use this for initialization
+    void Start () {
 
         if ((size-1) % segmentSize != 0)
             throw new Exception("Segment size must be a factor of (Size - 1)");
 
-
+        seed = System.DateTime.Now.Millisecond;
         UnityEngine.Random.InitState(seed);
         heightMap = GenerateDSHeightMap();
 
@@ -37,7 +40,7 @@ public class TerrainGenerator : MonoBehaviour {
                 MeshFilter tMesh = t.gameObject.AddComponent<MeshFilter>();
                 tMesh.sharedMesh = this.CreateTerrainMesh(heightMap, seg_x, seg_z);
                 MeshRenderer renderer = t.gameObject.AddComponent<MeshRenderer>();
-                renderer.material.shader = Shader.Find("Unlit/PhongShader");
+                renderer.material.shader = shader;
             }
         }
 
@@ -52,10 +55,23 @@ public class TerrainGenerator : MonoBehaviour {
 			this.seed = (int)(UnityEngine.Random.value*100);
 			Start();
 		}
-		// *****************************************************************************************************************************
-		// *****************************************************************************************************************************
-		// *****************************************************************************************************************************
-	}
+        // *****************************************************************************************************************************
+        // *****************************************************************************************************************************
+        // *****************************************************************************************************************************
+
+
+        MeshRenderer[] children = this.gameObject.GetComponentsInChildren<MeshRenderer>();
+
+        foreach (MeshRenderer i in children)
+        {
+            i.material.SetColor("_PointLightColor", this.pointLight.color);
+            i.material.SetVector("_PointLightPosition", this.pointLight.GetWorldPosition());
+        }
+    
+        
+
+
+    }
 
     public float? getHeight(int x, int z)
     {
