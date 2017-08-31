@@ -48,18 +48,6 @@ public class TerrainGenerator : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-		// *****************************************************************************************************************************
-		// ************************FOR DEBUGGING PURPOSES ONLY!*************************************************************************
-		// *****************************************************************************************************************************
-		if (Input.GetKeyDown ("f")) {
-			this.seed = (int)(UnityEngine.Random.value*100);
-			Start();
-		}
-        // *****************************************************************************************************************************
-        // *****************************************************************************************************************************
-        // *****************************************************************************************************************************
-
-
         MeshRenderer[] children = this.gameObject.GetComponentsInChildren<MeshRenderer>();
 
         foreach (MeshRenderer i in children)
@@ -67,10 +55,6 @@ public class TerrainGenerator : MonoBehaviour {
             i.material.SetColor("_PointLightColor", this.pointLight.color);
             i.material.SetVector("_PointLightPosition", this.pointLight.GetWorldPosition());
         }
-    
-        
-
-
     }
 
     public float? getHeight(int x, int z)

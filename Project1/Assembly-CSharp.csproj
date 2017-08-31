@@ -47,7 +47,10 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\CameraFollow.cs" />
+     <Compile Include="Assets\PointLight.cs" />
+     <Compile Include="Assets\SunScript.cs" />
      <Compile Include="Assets\TerrainGenerator.cs" />
+     <None Include="Assets\PhongShader.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>E:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
