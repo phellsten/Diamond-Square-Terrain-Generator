@@ -79,15 +79,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\CameraFollow.cs" />
-    <Compile Include="Assets\CubeScript.cs" />
     <Compile Include="Assets\PointLight.cs" />
     <Compile Include="Assets\SunScript.cs" />
     <Compile Include="Assets\TerrainGenerator.cs" />
-    <Compile Include="Assets\applyShader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\CubeShader.shader" />
-    <None Include="Assets\GouraudShader.shader" />
     <None Include="Assets\PhongShader.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
