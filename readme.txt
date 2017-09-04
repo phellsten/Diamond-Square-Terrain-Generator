@@ -11,3 +11,5 @@ correctly apply shading to each primitive in the landscape.
 The camera controls work by moving the camera relative to the position of the mouse. When the user presses the movement
 keys (w, a, s, d) the camera will move relative to the direction the camera is currently facing. The rotation keys (q, e)
 will roll the camera based on the direction faced.
+
+The PhongShader.shader and PointLight.cs have been adapted from the Graphics and Interactions Tutorial 4 solution.
